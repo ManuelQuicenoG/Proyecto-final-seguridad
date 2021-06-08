@@ -1,9 +1,9 @@
 #                                                                Proyecto final seguridad
 ## Integrantes:
 
--Juan Pablo Muñoz Muñoz
--Anderson Ramírez
--Manuel David Quiceno Gallego
+-Juan Pablo Muñoz Muñoz \n
+-Anderson Ramírez \n
+-Manuel David Quiceno Gallego \n
 
 ## Procedimiento
 
