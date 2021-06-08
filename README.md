@@ -11,7 +11,7 @@ Para llevar a cabo este proyecto se tuvo en cuenta un peuqeño proceso de desaro
 #### 1) Investigación
   En esta etapa se buscó material relacionado con el protocolo Diffie Hellman, con desarollo de chat por sockets y con el algoritmo AES. El resultado de esta etapa fue un conjunto de documentos, imagenes, codigo y material útil para el desarrollo del proyecto.
 #### 3) Análisis
-  En esta etapa se seleccinó la mejor forma de desarrollar el proyecto, gracias a los filtros que se hicieron, se seleccionó el desarrollo del chat en java eclipse, donde la lógica se desarrolló usando sockets y por el lado de la GUI (Graphic user interface) se seleccionó java swing.
+  <div style="text-align: justify"> En esta etapa se seleccinó la mejor forma de desarrollar el proyecto, gracias a los filtros que se hicieron, se seleccionó el desarrollo del chat en java eclipse, donde la lógica se desarrolló usando sockets y por el lado de la GUI (Graphic user interface) se seleccionó java swing. </div>
 #### 3)  Desarrollo
   En esta etapa se procedió a dar comiezo con la codificación de los algoritmos correspondientes, el desarrollo de la interfaz de usuario y el soporte para el chat por sockets. Se utilizó en esta etapa la herramienta github para mantener un manejo ótimo del versinamiento del proyecto. Se distribuyó la carga en el equipo de desarrollo, mientras un integrante se encargaba de lado de un usuario "Server", otro se encargaba del lado del otro usuario "Client", y el tercero se encargaba de la implementación del algoritmo diffie hellman y la parte del cifrado.
 #### 3) Pruebas fuerza bruta (transversal)
