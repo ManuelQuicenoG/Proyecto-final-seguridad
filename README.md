@@ -1,4 +1,4 @@
-#                                                                Proyecto-final-seguridad
+#                                                                Proyecto final seguridad
 ## Integrantes:
 
 -Juan Pablo Muñoz Muñoz
