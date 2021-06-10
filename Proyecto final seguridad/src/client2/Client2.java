@@ -9,7 +9,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.spec.KeySpec;
+import java.util.Base64;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,6 +26,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import security.Initialize;
+import security.User;
 
 public class Client2 {
 	private JFrame ventanaChat;
@@ -33,6 +44,10 @@ public class Client2 {
 	private Socket socket;
 	private BufferedReader lector;
 	private PrintWriter escritor;
+	private static final String saltAES = "salttest";
+	private User user2;
+	
+	private int claveParaCifrar;
 	
 	public Client2 (){
 		inicializateGUI();
@@ -80,10 +95,36 @@ public class Client2 {
 		ventanaChat.setResizable(false);
 		ventanaChat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		user2 = new User("user 2"); 
+		Initialize init = new Initialize();
+		
 		Thread principal = new Thread(new Runnable() {
 			public void run() {
 				try {
 					socket = new Socket("localhost", 9000);
+					escritor = new PrintWriter(socket.getOutputStream(), true);
+					int primo = init.getPrimo();
+					int gene = init.getGenerador();
+					user2.asignaClavesPublicas(primo, gene);
+					user2.calculaSecreto();
+					int clave = user2.calculaClave();
+					escritor.println(clave+","+primo+","+gene);
+					lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					boolean flag = true;
+					String mensaje = "";
+					while(flag) {
+						String mensaje_recibido = lector.readLine();
+						if(mensaje_recibido.split(",").length==3) {
+							String [] parts = mensaje_recibido.split(",");
+							if(parts[1].equals("ok")) {
+								mensaje = mensaje_recibido;
+								flag = false;
+							}
+						}
+					}
+					String [] parts = mensaje.split(",");
+					int claveCome = Integer.parseInt(parts[0]);
+					claveParaCifrar = user2.secretoComun(claveCome);
 					leer();
 					escribir();
 				}catch (Exception ex) {
@@ -103,6 +144,8 @@ public class Client2 {
 					
 					 while(true) {
 						 String mensaje_recibido = lector.readLine();
+						 System.out.println("mensaje recibido: "+mensaje_recibido);
+						 mensaje_recibido = getAESDecrypt(mensaje_recibido);
 						 areaChat.append("EL OTRO USUARIO DICE: "+"\n"+ mensaje_recibido+"\n");
 					 }
 				} catch (Exception ex) {
@@ -130,7 +173,9 @@ public class Client2 {
 						public void actionPerformed(ActionEvent e) {
 							String enviar_mensaje = txtMesaje.getText();
 							if(!enviar_mensaje.isEmpty()) {
-								escritor.println(enviar_mensaje);	
+								String cif = getAES(enviar_mensaje);
+								System.out.println("mensaje enviado: "+cif);
+								escritor.println(cif);
 								areaChat.append("TÚ: "+"\n"+ enviar_mensaje+"\n");
 								txtMesaje.setText("");
 							}
@@ -145,12 +190,46 @@ public class Client2 {
 		escribir_hilo.start();
 	}
 	
+	public String getAES(String data) {
+        try {
+            byte[] iv = new byte[16];
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec keySpec = new PBEKeySpec((claveParaCifrar+"").toCharArray(), saltAES.getBytes(), 65536, 128);
+            SecretKey secretKeyTemp = secretKeyFactory.generateSecret(keySpec);
+            SecretKeySpec secretKey = new SecretKeySpec(secretKeyTemp.getEncoded(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes("UTF-8")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public String getAESDecrypt(String data) {
+        byte[] iv = new byte[16];
+        try {
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec keySpec = new PBEKeySpec((claveParaCifrar+"").toCharArray(), saltAES.getBytes(), 65536, 128);
+            SecretKey secretKeyTemp = secretKeyFactory.generateSecret(keySpec);
+            SecretKeySpec secretKey = new SecretKeySpec(secretKeyTemp.getEncoded(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(data)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+	
 	public static void main(String[] args) {
-		try {
+//		try {
 			new Client2();
-		} catch (Exception e) {
-			
-		}
+//		} catch (Exception e) {
+//			
+//		}
 		
 	}
 }
