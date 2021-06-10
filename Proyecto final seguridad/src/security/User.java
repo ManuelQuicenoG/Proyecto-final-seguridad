@@ -23,11 +23,11 @@ public class User {
 	
 	
 	public int calculaSecreto() {
-		secreto = 1 + (int)(Math.random() * 100);
+		secreto = 0;
 		
-		while(primo > secreto) {
+		while(true) {
 			secreto = 1 + (int)(Math.random() * 100);
-			if(primo > secreto) {
+			if(secreto<primo) {
 				break;
 			}
 		}
