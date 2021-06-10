@@ -2,7 +2,7 @@
 ## Integrantes:
 
 * Juan Pablo Muñoz Muñoz
-* Anderson Ramírez 
+* Anderson Ramírez Hormiga
 * Manuel David Quiceno Gallego
 
 ## Procedimiento
